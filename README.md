@@ -61,4 +61,4 @@ Now let's see the details of implementation that I have done for completion of t
 
 ## Autonomous Car System Architecture
 The autonomous car which will run on the track in simulator, has the system architecure as mentioend in the diagram below.
-<img src="./imgs/final-project-ros-graph-v2.png" height="60%" width="60%" align="middle" alt="Autonomous Car System Architecture Diagram">
+<img src="./imgs/final-project-ros-graph-v2.png" height="100%" width="100%" align="middle" alt="Autonomous Car System Architecture Diagram">
