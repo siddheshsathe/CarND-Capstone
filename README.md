@@ -91,3 +91,35 @@ This node subscribes to
 4. `/traffic_waypoint`: Published by `Traffic Light Detection Node` from `Perception` module
 <br>
 
+In `waypoint_updater.py` I've implemented a method named `closest_waypoint` which returns the index of waypoint which is closest to the car. This will traverse through all the available waypoints and find the closest one.
+<br>
+
+```python
+    def closest_waypoint(self, pose, waypoints):
+        # simply take the code from the path planning module and re-implement it here
+        closest_len = 100000 # Taken some very large number against which closest waypoint will be calculated.
+        closest_waypoint = 0
+        dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2)
+        for index, waypoint in enumerate(self.waypoints):
+            dist = dl(pose.position, waypoint.pose.pose.position)
+            if (dist < closest_len):
+                closest_len = dist
+                closest_waypoint = index
+
+        return closest_waypoint
+```
+<br>
+Also in another method named `decelerate`, we're calculating the `velocity` for every waypoint based on the input from `traffic light` and car's distance from `STOP_DIST`. If the traffic light happens to be `red`, then the car will decelerate and stop just before stop line.
+<br>
+```python
+if index > redlight_index:
+                vel = 0
+            else:
+                dist = self.distance(wp.pose.pose.position, last.pose.pose.position)
+                dist = max(0, dist - STOP_DIST)
+                vel  = math.sqrt(2 * MAX_DECEL * dist)
+                if vel < 1.:
+                    vel = 0.
+            wp.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
+```
+<br>
