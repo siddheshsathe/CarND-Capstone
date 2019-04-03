@@ -62,3 +62,14 @@ Now let's see the details of implementation that I have done for completion of t
 ## Autonomous Car System Architecture
 The autonomous car which will run on the track in simulator, has the system architecure as mentioend in the diagram below.
 <img src="./imgs/final-project-ros-graph-v2.png" height="100%" width="100%" align="middle" alt="Autonomous Car System Architecture Diagram">
+<br>
+Now let's see all the modules present in this architecure in details.
+## Planning
+The planning module is responsible for planning the path  for car movements on the road. This modules creates a path to traverse on the track considering the environments, ex. traffic.
+This module in composed of two ROS nodes:
+1. Waypoint Loader
+2. Waypoint Updater
+
+#### Waypoint Loader
+This node is responsible for loading the `waypoints` provided by the simulator and publishing them on `/base_waypoints` topic. Thus, this can be considered as a **Staring Point** of the project. Also, the `frameid` for the `waypoints` published is `/world`.
+These `waypoints` are of type `Lane` defined under `styx_msgs/msg/Lane.msg`
