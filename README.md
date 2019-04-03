@@ -73,3 +73,21 @@ This module in composed of two ROS nodes:
 #### Waypoint Loader
 This node is responsible for loading the `waypoints` provided by the simulator and publishing them on `/base_waypoints` topic. Thus, this can be considered as a **Staring Point** of the project. Also, the `frameid` for the `waypoints` published is `/world`.
 These `waypoints` are of type `Lane` defined under `styx_msgs/msg/Lane.msg`
+<br>
+The waypoint contains below data items. All these items are updated with data received from simulator.
+1. `position x`: `x` location of the vehicle
+2. `position y`: `y` location of the vehicle
+3. `position z`: `z` location of the vehicle
+4. `orientation`: Car's yaw angle
+5. `twist.linear.x`: Car's velocity
+<br>
+
+#### Waypoint Updater Node
+This node contains `waypoint_updater.py`. This node updates the velocity property of every waypoint based on traffic light and obstacles detected.<br>
+This node subscribes to 
+1. `/base_waypoints`: Published by `Waypoint Loader`
+2. `/current_pose`: Published by `Car/Simulator`
+3. `/obstacle_waypoint`: Published by `Obstacle Detection` from `Perception` module
+4. `/traffic_waypoint`: Published by `Traffic Light Detection Node` from `Perception` module
+<br>
+

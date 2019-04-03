@@ -64,8 +64,8 @@ class WaypointUpdater(object):
             self.publish()
 
     def obstacle_cb(self, msg):
-        # TODO: Callback for /obstacle_waypoint message. We will implement it later
-        pass
+        # No obstacles from simulator used in Capstone project. Thus have not implemented it yet.
+        rospy.loginfo('Received obstacle info {}'.format(msg))
 
     def get_waypoint_velocity(self, waypoint):
         return waypoint.twist.twist.linear.x
