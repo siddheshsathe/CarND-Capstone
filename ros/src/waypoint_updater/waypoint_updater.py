@@ -22,7 +22,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 300 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
 DEBUG_MODE = False
 MAX_DECEL = 0.5
 STOP_DIST = 5.0
@@ -123,8 +123,6 @@ class WaypointUpdater(object):
         last = waypoints[redlight_index]
 
         last.twist.twist.linear.x = 0.
-        total_dist = self.distance(first.pose.pose.position, last.pose.pose.position)
-        start_vel = first.twist.twist.linear.x
         # start from the waypoint before last and go backwards
         for index, wp in enumerate(waypoints):
 
