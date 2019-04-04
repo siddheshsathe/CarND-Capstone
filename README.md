@@ -154,8 +154,6 @@ This node receives the image taken from camera mounted on the car and checks for
 <br>
 The image captured from car mounted camera looks like this.
 <img src="imgs/red_light_from_camera.jpg" height="100%" width="100%" alt="Camera captured traffic lights">
-Traffic lights image captured by Car Mounted Camera
-
 <br>
 
 ```python
@@ -242,4 +240,10 @@ def get_classification(self, image):
     finally:
         return trafficLight
 ```
+<br>
+
+At the end of above mentioned method `get_classification`, we're checking for `HoughCircles` which returns the circles. If the circles are found in the image, it's red traffic light. We're skipping detection of green and yellow light since there's no traffic on the simulator road, and red is the only traffic light where we'll be braking the car, else we can keep driving.
+<br>
+The Hough Circles look like below image.
+<img src="imgs/hough_circles_red_traffic_lights.jpg" height="100%" width="100%" alt="Hough circles for red traffic lights">
 <br>
