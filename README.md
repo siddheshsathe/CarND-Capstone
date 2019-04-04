@@ -155,6 +155,7 @@ This node receives the image taken from camera mounted on the car and checks for
 The image captured from car mounted camera looks like this.
 <img src="imgs/red_light_from_camera.jpg" height="100%" width="100%" alt="Camera captured traffic lights">
 Traffic lights image captured by Car Mounted Camera
+
 <br>
 ```python
 def process_traffic_lights(self):
