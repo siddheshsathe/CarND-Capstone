@@ -155,7 +155,9 @@ This node receives the image taken from camera mounted on the car and checks for
 The image captured from car mounted camera looks like this.
 <img src="imgs/red_light_from_camera.jpg" height="100%" width="100%" alt="Camera captured traffic lights">
 Traffic lights image captured by Car Mounted Camera
+
 <br>
+
 ```python
 def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -186,6 +188,7 @@ def process_traffic_lights(self):
         return -1, TrafficLight.UNKNOWN
 ```
 <br>
+
 2. Traffic Light Classification
 This node classfies the detected traffic lights for their colors. This is implemented in `light_classification/tl_classifier.py`.
 <br>
@@ -193,6 +196,7 @@ All the implementation for traffic light color detection is done by `opencv` onl
 <br>
 The traffic light color detection is implemented as below
 <br>
+
 ```python
 def get_classification(self, image):
     """
@@ -238,3 +242,4 @@ def get_classification(self, image):
     finally:
         return trafficLight
 ```
+<br>
