@@ -247,3 +247,79 @@ At the end of above mentioned method `get_classification`, we're checking for `H
 The Hough Circles look like below image.
 <img src="imgs/hough_circles_red_traffic_lights.jpg" height="100%" width="100%" alt="Hough circles for red traffic lights">
 <br>
+
+## Control
+The control module actually drives the Autonomous Vehicle on the road. It consists of two ROS nodes
+1. DBW Node
+2. Waypoint Follower
+Let's see these nodes in detail.
+
+#### DBW Node
+This is `Drive By Wire` node which is used for actuations requried in the car, ex. push a throttle for more gas, apply brakes, steer the vehicle by some x angle etc.
+<br>
+The DBW node subscribes to
+1. `/current_velocity`: Published by Car/Simulator
+2. `/vehicle/dbw_enabled`: Published by Car/Simulator
+3. `/twist_cmd`: Published by Waypoint follower node
+<br>
+There are some pre-defined constant car values present in `dbw_node.py` which are used for multiple calulations like the calculation for how much power to put on brakes considering car's weight.
+
+```python
+cp.vehicle_mass = rospy.get_param('~vehicle_mass', 1736.35)
+cp.fuel_capacity = rospy.get_param('~fuel_capacity', 13.5)
+cp.brake_deadband = rospy.get_param('~brake_deadband', .1)
+cp.decel_limit = rospy.get_param('~decel_limit', -5)
+cp.accel_limit = rospy.get_param('~accel_limit', 1.)
+cp.wheel_radius = rospy.get_param('~wheel_radius', 0.2413)
+cp.wheel_base = rospy.get_param('~wheel_base', 2.8498)
+cp.steer_ratio = rospy.get_param('~steer_ratio', 14.8)
+cp.max_lat_accel = rospy.get_param('~max_lat_accel', 3.)
+cp.max_steer_angle = rospy.get_param('~max_steer_angle', 8.)
+cp.min_speed = 0.1
+```
+This `dbw_node.py` calls a method `control` from `twist_controller.py` which calculates how much throttle, brake and steering angle is required for the next step. This `control` method takes in three parameters viz, `twist_cmd`, `current_velocity` and `del_time`.
+<br>
+The `twist_cmd` is the last twist command executed. `current_velocity` is required for calculation of velocity of next waypoint. And `del_time` is for the syncronization in `pid` control step.
+The implementation looks like below.
+
+```python
+def control(self, twist_cmd, current_velocity, del_time):
+    lin_vel = abs(twist_cmd.twist.linear.x)
+    ang_vel = twist_cmd.twist.angular.z
+    vel_err = lin_vel - current_velocity.twist.linear.x
+
+    next_steer = self.yaw_controller.get_steering(lin_vel, ang_vel, current_velocity.twist.linear.x) # yaw controller will return next steer value
+    next_steer = self.s_lpf.filt(next_steer)
+
+    acceleration = self.pid.step(vel_err, del_time)
+    acceleration = self.t_lpf.filt(acceleration)
+
+    if acceleration > 0.0:
+        throttle = acceleration
+        brake = 0.0
+    else:
+        throttle = 0.0
+        deceleration = -acceleration
+
+        if deceleration < self.cp.brake_deadband:
+            deceleration = 0.0
+
+        brake = deceleration * (self.cp.vehicle_mass + self.cp.fuel_capacity * GAS_DENSITY) * self.cp.wheel_radius  # Previously defined car constant values being used here
+        if brake > 0:
+            throttle = 0.0
+
+    # Return throttle, brake, steer
+    return throttle, brake, next_steer
+```
+
+After the calculations of throttle, brake commands and steer values, these values are published over
+1. `/vehicle/brake_cmd`: Subscribed by Car/Simulator
+2. `/vehicle/steering_cmd`: Subscribed by Car/Simulator
+3. `/vehicle/throttle_cmd`: Subscribed by Car/Simulator
+<br>
+
+#### Waypoint Follower
+Waypoint follower is the node coded in `C++` and is readymade available in this project repo from `Udacity`.
+<br>
+This node subscribes to `/final_waypoints` topic published by `Waypoint Updater Node` and makes the car follow these published waypoints.
+<br>
