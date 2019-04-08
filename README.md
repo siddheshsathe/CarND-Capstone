@@ -295,25 +295,28 @@ def control(self, twist_cmd, current_velocity, del_time):
     ang_vel = twist_cmd.twist.angular.z
     vel_err = lin_vel - current_velocity.twist.linear.x
 
-    next_steer = self.yaw_controller.get_steering(lin_vel, ang_vel, current_velocity.twist.linear.x) # yaw controller will return next steer value
+    next_steer = self.yaw_controller.get_steering(lin_vel, ang_vel, current_velocity.twist.linear.x)
     next_steer = self.s_lpf.filt(next_steer)
 
     acceleration = self.pid.step(vel_err, del_time)
     acceleration = self.t_lpf.filt(acceleration)
-
+    throttle = brake = 0.0
+    if current_velocity.twist.linear.x > 8.9: # if velocity goes beyond permitted, apply brake
+        apply_brake = True
     if acceleration > 0.0:
         throttle = acceleration
-        brake = 0.0
+        apply_brake = False
     else:
         throttle = 0.0
+        apply_brake = True
         deceleration = -acceleration
 
         if deceleration < self.cp.brake_deadband:
             deceleration = 0.0
-
-        brake = deceleration * (self.cp.vehicle_mass + self.cp.fuel_capacity * GAS_DENSITY) * self.cp.wheel_radius  # Previously defined car constant values being used here
+    if apply_brake:
+        brake = deceleration * (self.cp.vehicle_mass + self.cp.fuel_capacity ) * self.cp.wheel_radius
         if brake > 0:
-            throttle = 0.0
+            throttle = -acceleration
 
     # Return throttle, brake, steer
     return throttle, brake, next_steer
