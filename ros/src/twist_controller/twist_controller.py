@@ -4,10 +4,6 @@ from lowpass import LowPassFilter
 from yaw_controller import YawController
 
 
-GAS_DENSITY = 2.858
-ONE_MPH = 0.44704
-
-
 class Controller(object):
     def __init__(self, cp):
         self.yaw_controller = YawController(
@@ -35,20 +31,23 @@ class Controller(object):
 
         acceleration = self.pid.step(vel_err, del_time)
         acceleration = self.t_lpf.filt(acceleration)
-
+        throttle = brake = 0.0
+        if current_velocity.twist.linear.x > 8.9: # if velocity goes beyond permitted, apply brake
+            apply_brake = True
         if acceleration > 0.0:
             throttle = acceleration
-            brake = 0.0
+            apply_brake = False
         else:
             throttle = 0.0
+            apply_brake = True
             deceleration = -acceleration
 
             if deceleration < self.cp.brake_deadband:
                 deceleration = 0.0
-
-            brake = deceleration * (self.cp.vehicle_mass + self.cp.fuel_capacity * GAS_DENSITY) * self.cp.wheel_radius
+        if apply_brake:
+            brake = deceleration * (self.cp.vehicle_mass + self.cp.fuel_capacity ) * self.cp.wheel_radius
             if brake > 0:
-                throttle = 0.0
+                throttle = -acceleration
 
         # Return throttle, brake, steer
         return throttle, brake, next_steer
